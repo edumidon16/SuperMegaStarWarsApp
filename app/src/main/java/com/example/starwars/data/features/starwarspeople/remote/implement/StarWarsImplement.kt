@@ -1,7 +1,6 @@
 package com.example.starwars.data.features.starwarspeople.remote.implement
 
 import com.example.starwars.data.features.starwarspeople.remote.model.CharacterInfoStarWars
-import com.example.starwars.data.features.starwarspeople.remote.model.RemotePeopleResponse
 import com.example.starwars.data.service.PeopleService
 import com.example.starwars.domain.repository.MyRepository
 import javax.inject.Inject

@@ -11,5 +11,4 @@ interface StarWarsService {
     @GET(BASE_URL + PEOPLE)
     suspend fun getAllPeople(): Response<List<CharacterInfoStarWars>>
 
-
 }
