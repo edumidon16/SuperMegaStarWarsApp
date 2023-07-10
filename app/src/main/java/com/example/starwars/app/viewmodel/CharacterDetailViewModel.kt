@@ -3,7 +3,7 @@ package com.example.starwars.app.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.starwars.app.common.states.ResourceState
-import com.example.starwars.domain.usecase.GetPeopleListUseCase
+import com.example.starwars.domain.usecase.GetCharacterDetailUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -13,22 +13,21 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-
 @HiltViewModel
-class PeopleListViewModel @Inject constructor(
-    private val getPeopleListUseCase: GetPeopleListUseCase
+class CharacterDetailViewModel @Inject constructor(
+    private val getCharacterDetailUseCase: GetCharacterDetailUseCase
 ) : ViewModel() {
 
-    private val _characterList = MutableStateFlow<ResourceState<*>>(ResourceState.Idle)
+    private val _characterSearcher = MutableStateFlow<ResourceState<*>>(ResourceState.Idle)
 
-    val characterList: StateFlow<ResourceState<*>>
-        get() = _characterList
+    val characterSearcher: StateFlow<ResourceState<*>>
+        get() = _characterSearcher
 
-    fun loadCharacters() {
-        _characterList.update { ResourceState.Loading("") }
+    fun searchByName(query: String) {
+        _characterSearcher.update { ResourceState.Loading("") }
         viewModelScope.launch(Dispatchers.IO) {
-            getPeopleListUseCase().collectLatest { character ->
-                _characterList.update {
+            getCharacterDetailUseCase(query).collectLatest { character ->
+                _characterSearcher.update {
                     if (character.isNotEmpty()) {
                         ResourceState.Success(character)
                     } else {

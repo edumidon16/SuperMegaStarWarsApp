@@ -2,12 +2,15 @@ package com.example.starwars.data.features.starwarspeople.remote.implement
 
 import com.example.starwars.data.features.starwarspeople.mappers.toDomain
 import com.example.starwars.data.service.StarWarsService
+import com.example.starwars.domain.model.ModelCharacterDetailResponse
 import com.example.starwars.domain.model.PeopleResponse
 import com.example.starwars.domain.repository.MyRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import javax.inject.Inject
+import javax.inject.Singleton
 
+@Singleton
 open class StarWarsImplement @Inject constructor(
     private val apiService: StarWarsService
 ) : MyRepository {
@@ -23,4 +26,17 @@ open class StarWarsImplement @Inject constructor(
             emit(emptyList())
         }
     }
+
+    override suspend fun getDetailCharacter(name: String): Flow<List<ModelCharacterDetailResponse>> =
+        flow {
+            val characterDetail = apiService.getDetailCharacter(name)
+
+            if (characterDetail.isSuccessful) {
+                characterDetail.body()?.let { characterDetail ->
+                    emit(listOf(characterDetail.toDomain()))
+                }
+            } else {
+                emit(emptyList())
+            }
+        }
 }

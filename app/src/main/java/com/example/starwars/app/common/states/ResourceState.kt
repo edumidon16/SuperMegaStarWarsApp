@@ -1,7 +1,8 @@
 package com.example.starwars.app.common.states
 
-sealed class ResourceState {
-    object loading : ResourceState()
-    data class Success(val name: String) : ResourceState()
-    data class Error(val msg: String) : ResourceState()
+sealed class ResourceState<T> {
+    object Idle : ResourceState<Void>()
+    data class Loading<String>(val data: String) : ResourceState<String>()
+    data class Error<Throwable>(val throwable: Throwable) : ResourceState<Throwable>()
+    data class Success<T>(val data: T) : ResourceState<T>()
 }

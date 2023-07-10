@@ -11,7 +11,7 @@ fun RemotePeopleResponse.toDomain(): PeopleResponse = PeopleResponse(
     // https://jsonviewer.stack.hu/
     // List [ ] .map { it.toDomain() },
     // Array { } .toDomain(),
-    results = this.results?.map { it?.toDomain() },
+    results = this.results?.map { it?.toDomain() ?: People("", "") }
 )
 
 fun CharacterInfoStarWars.toDomain(): People = People(
