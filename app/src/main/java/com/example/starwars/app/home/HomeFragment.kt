@@ -5,13 +5,16 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.widget.SearchView
+import androidx.core.os.bundleOf
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.example.starwars.R
 import com.example.starwars.app.adapter.CharacterAdapter
 import com.example.starwars.app.adapter.SearchCharacterAdapter
 import com.example.starwars.app.common.states.ResourceState
@@ -20,7 +23,6 @@ import com.example.starwars.app.viewmodel.PeopleListViewModel
 import com.example.starwars.databinding.FragmentHomeBinding
 import com.example.starwars.domain.model.ModelCharacter
 import com.example.starwars.domain.model.People
-import com.example.starwars.domain.model.PeopleResponse
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collectLatest
@@ -37,11 +39,9 @@ class HomeFragment : Fragment() {
 
     private var binding: FragmentHomeBinding? = null
 
-    //region List
     private val peopleViewModel: PeopleListViewModel by viewModels()
     private var currentCharacterList: List<People> = emptyList()
     private lateinit var characterAdapter: CharacterAdapter
-    //endregion
 
     //Searcher
     private val characterViewModel: CharacterDetailViewModel by viewModels()
@@ -62,25 +62,28 @@ class HomeFragment : Fragment() {
         this.binding = null
     }
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
 
-        //region List
-//        characterAdapter = CharacterAdapter()
-//        binding?.rvStarWarsCharacters?.setHasFixedSize(true)
-//        binding?.rvStarWarsCharacters?.layoutManager = LinearLayoutManager(requireContext())
-//        binding?.rvStarWarsCharacters?.adapter = characterAdapter
-        //endregion
-
-        searchAdapter = SearchCharacterAdapter()
+        searchAdapter = SearchCharacterAdapter { name ->
+            if (name != null) {
+                navigateToDetail(name)
+            }
+        }
         binding?.rvStarWarsCharacters?.setHasFixedSize(true)
         binding?.rvStarWarsCharacters?.layoutManager = LinearLayoutManager(requireContext())
         binding?.rvStarWarsCharacters?.adapter = searchAdapter
 
-    }
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
+//region List
+        characterAdapter = CharacterAdapter()
+        binding?.rvStarWarsPeople?.setHasFixedSize(true)
+        binding?.rvStarWarsPeople?.layoutManager = LinearLayoutManager(requireContext())
+        binding?.rvStarWarsPeople?.adapter = characterAdapter
+//endregion
+
+
+        peopleViewModel.loadCharacters()
 
         binding?.searchView?.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(query: String?): Boolean {
@@ -89,42 +92,16 @@ class HomeFragment : Fragment() {
             }
 
             override fun onQueryTextChange(newText: String?): Boolean {
+                if (newText.isNullOrEmpty()) {
+                    peopleViewModel.loadCharacters()
+                } else {
+                    characterViewModel.searchByName(newText.orEmpty())
+                }
+
                 return false
             }
         })
 
-        viewLifecycleOwner.lifecycleScope.launch {
-            repeatOnLifecycle(Lifecycle.State.STARTED) {
-                launch(Dispatchers.IO) {
-                    characterViewModel.characterSearcher.collectLatest { listState ->
-                        when (listState) {
-                            is ResourceState.Error -> {
-                                withContext(Dispatchers.Main) {
-                                    binding?.progressBar?.isVisible = true
-                                }
-                            }
-
-                            is ResourceState.Loading -> {
-                                withContext(Dispatchers.Main) {
-                                    binding?.progressBar?.isVisible = true
-                                }
-                            }
-
-                            is ResourceState.Success -> {
-                                withContext(Dispatchers.Main) {
-                                    val characterDetail = listState.data as List<ModelCharacter>
-                                    currentCharacterDetailList = characterDetail
-                                    searchAdapter.updateList(currentCharacterDetailList)
-                                    binding?.progressBar?.isVisible = false
-                                }
-                            }
-
-                            else -> {}
-                        }
-                    }
-                }
-            }
-        }
 
 
         viewLifecycleOwner.lifecycleScope.launch {
@@ -148,9 +125,47 @@ class HomeFragment : Fragment() {
                             is ResourceState.Success -> {
 
                                 withContext(Dispatchers.Main) {
-                                    val a = listState.data as List<PeopleResponse>
-                                    currentCharacterList = a.first().results.orEmpty()
+                                    binding?.rvStarWarsCharacters?.visibility = View.GONE
+                                    binding?.rvStarWarsPeople?.visibility = View.VISIBLE
+                                    currentCharacterList = listState.data.first().results.orEmpty()
                                     characterAdapter.updateList(currentCharacterList)
+                                    binding?.progressBar?.isVisible = false
+                                }
+                            }
+
+                            else -> {}
+                        }
+                    }
+                }
+            }
+        }
+
+
+
+        viewLifecycleOwner.lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                launch(Dispatchers.IO) {
+                    characterViewModel.characterSearcher.collectLatest { listState ->
+                        when (listState) {
+                            is ResourceState.Error -> {
+                                withContext(Dispatchers.Main) {
+                                    binding?.progressBar?.isVisible = true
+                                }
+                            }
+
+                            is ResourceState.Loading -> {
+                                withContext(Dispatchers.Main) {
+                                    binding?.progressBar?.isVisible = true
+                                }
+                            }
+
+                            is ResourceState.Success -> {
+                                withContext(Dispatchers.Main) {
+                                    binding?.rvStarWarsCharacters?.visibility = View.VISIBLE
+                                    binding?.rvStarWarsPeople?.visibility = View.GONE
+                                    currentCharacterDetailList =
+                                        listState.data.first().result.orEmpty()
+                                    searchAdapter.updateList(currentCharacterDetailList)
                                     binding?.progressBar?.isVisible = false
                                 }
                             }
@@ -163,7 +178,16 @@ class HomeFragment : Fragment() {
         }
     }
 
+    private fun navigateToDetail(name: String) {
+        findNavController().navigate(
+            R.id.action_homeFragment_to_characterDetailFragment,
+            bundleOf("name" to name)
+        )
+    }
 }
+
+
+
 
 
 

@@ -4,11 +4,7 @@ import java.io.Serializable
 
 
 data class ModelCharacterDetailResponse(
-    val result: List<ModelCharacterDetail>?,
-) : Serializable
-
-data class ModelCharacterDetail(
-    val properties: ModelCharacter?,
+    val result: List<ModelCharacter>?,
 ) : Serializable
 
 data class ModelCharacter(

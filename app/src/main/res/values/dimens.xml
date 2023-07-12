@@ -11,4 +11,5 @@
     <dimen name="tvlayoutWidthCW">260dp</dimen>
     <dimen name="tvMarginLeftCV">15dp</dimen>
     <dimen name="tvLayoutMarginTop">10dp</dimen>
+    <dimen name="MartginTopTVCI">140dp</dimen>
 </resources>

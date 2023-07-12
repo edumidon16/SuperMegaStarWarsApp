@@ -3,38 +3,62 @@ package com.example.starwars.app.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.starwars.app.common.states.ResourceState
+import com.example.starwars.app.common.states.ResourceState.Idle
+import com.example.starwars.app.common.states.ResourceState.Success
+import com.example.starwars.domain.model.ModelCharacter
+import com.example.starwars.domain.model.ModelCharacterDetailResponse
 import com.example.starwars.domain.usecase.GetCharacterDetailUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+
+
+typealias CharacterDetailState = ResourceState<List<ModelCharacterDetailResponse>>
 
 @HiltViewModel
 class CharacterDetailViewModel @Inject constructor(
     private val getCharacterDetailUseCase: GetCharacterDetailUseCase
 ) : ViewModel() {
 
-    private val _characterSearcher = MutableStateFlow<ResourceState<*>>(ResourceState.Idle)
-
-    val characterSearcher: StateFlow<ResourceState<*>>
-        get() = _characterSearcher
+    val characterSearcher: MutableStateFlow<CharacterDetailState> = MutableStateFlow(Idle())
+    private var detailList: List<ModelCharacter> = emptyList()
 
     fun searchByName(query: String) {
-        _characterSearcher.update { ResourceState.Loading("") }
+        characterSearcher.update { ResourceState.Loading() }
         viewModelScope.launch(Dispatchers.IO) {
             getCharacterDetailUseCase(query).collectLatest { character ->
-                _characterSearcher.update {
+                characterSearcher.update {
                     if (character.isNotEmpty()) {
-                        ResourceState.Success(character)
+                        Success(character)
                     } else {
-                        ResourceState.Error("Error")
+                        ResourceState.Error(character)
                     }
                 }
             }
         }
+    }
+
+    fun getDetailCharacter(name: String): List<ModelCharacter> {
+
+        viewModelScope.launch(Dispatchers.IO) {
+            getCharacterDetailUseCase(name).collectLatest { character ->
+                if (character.isNotEmpty()) {
+                    detailList = character.first().result.orEmpty()
+
+                } else {
+                    ResourceState.Error(character)
+                }
+            }
+        }
+        if (detailList.isNotEmpty()) {
+            return detailList
+        } else {
+            return emptyList()
+        }
+
     }
 }

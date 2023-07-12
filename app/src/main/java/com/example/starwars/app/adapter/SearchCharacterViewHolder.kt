@@ -9,7 +9,10 @@ class SearchCharacterViewHolder(view: View) : RecyclerView.ViewHolder(view) {
 
     private val binding = CharacterItemBinding.bind(view)
 
-    fun bind(modelCharacter: ModelCharacter) {
+    fun bind(modelCharacter: ModelCharacter, onItemSelected: (String?) -> Unit) {
         binding.tvCharacterName.text = modelCharacter.name
+        binding.tvCharacterHeight.text = "Height: " + modelCharacter.height
+
+        binding.root.setOnClickListener { onItemSelected(modelCharacter.name) }
     }
 }
