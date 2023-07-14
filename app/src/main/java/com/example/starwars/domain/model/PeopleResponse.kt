@@ -7,6 +7,6 @@ data class PeopleResponse(
 ) : Serializable
 
 data class People(
-    val id: String,
-    val name: String
+    val id: String?,
+    val name: String?
 ) : Serializable

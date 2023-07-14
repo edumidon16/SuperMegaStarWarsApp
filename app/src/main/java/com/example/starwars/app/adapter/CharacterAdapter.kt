@@ -7,7 +7,8 @@ import com.example.starwars.R
 import com.example.starwars.domain.model.People
 
 class CharacterAdapter(
-    var characterList: List<People> = emptyList()
+    var characterList: List<People> = emptyList(),
+    private val onItemSelected: (String?) -> Unit
 ) : RecyclerView.Adapter<CharacterViewHolder>() {
 
 
@@ -26,6 +27,6 @@ class CharacterAdapter(
     }
 
     override fun onBindViewHolder(viewholder: CharacterViewHolder, position: Int) {
-        viewholder.bind(characterList[position])
+        viewholder.bind(characterList[position], onItemSelected)
     }
 }

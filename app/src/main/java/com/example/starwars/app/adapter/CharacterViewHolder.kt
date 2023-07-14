@@ -9,7 +9,10 @@ class CharacterViewHolder(view: View) : RecyclerView.ViewHolder(view) {
 
     private val binding = CharacterItemBinding.bind(view)
 
-    fun bind(people: People) {
+    fun bind(people: People, onItemSelected: (String?) -> Unit) {
         binding.tvCharacterName.text = people.name
+
+        binding.root.setOnClickListener { onItemSelected(people.name) }
+
     }
 }

@@ -76,7 +76,11 @@ class HomeFragment : Fragment() {
 
 
 //region List
-        characterAdapter = CharacterAdapter()
+        characterAdapter = CharacterAdapter { name ->
+            if (name != null) {
+                navigateToDetail(name)
+            }
+        }
         binding?.rvStarWarsPeople?.setHasFixedSize(true)
         binding?.rvStarWarsPeople?.layoutManager = LinearLayoutManager(requireContext())
         binding?.rvStarWarsPeople?.adapter = characterAdapter

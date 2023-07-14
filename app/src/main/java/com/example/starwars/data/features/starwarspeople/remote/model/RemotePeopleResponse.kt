@@ -8,6 +8,6 @@ data class RemotePeopleResponse(
 )
 
 data class CharacterInfoStarWars(
-    @SerializedName("uid") val id : String,
-    @SerializedName("name") val name : String
+    @SerializedName("uid") val id: String?,
+    @SerializedName("name") val name: String?
 )
