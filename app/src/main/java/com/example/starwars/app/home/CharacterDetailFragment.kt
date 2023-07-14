@@ -8,7 +8,6 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import com.example.starwars.app.viewmodel.CharacterDetailViewModel
 import com.example.starwars.databinding.FragmentCharacterDetailBinding
-import com.example.starwars.domain.model.ModelCharacter
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -20,7 +19,6 @@ class CharacterDetailFragment : Fragment() {
     private val characterViewModel: CharacterDetailViewModel by viewModels()
 
     private var name: String? = ""
-    private var detailList: List<ModelCharacter> = emptyList()
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -44,7 +42,21 @@ class CharacterDetailFragment : Fragment() {
         }
 
         name.let {
-            detailList = characterViewModel.getDetailCharacter(name!!)
+            characterViewModel.getDetailCharacter(name) { detailList ->
+
+                detailList.forEach { modelCharacter ->
+                    val characterName = modelCharacter.name
+                    val characterHeight = modelCharacter.height
+                    val characterMass = modelCharacter.mass
+                    val characterGender = modelCharacter.gender
+
+                    binding.tvName.text = "Name: $characterName"
+                    binding.tvGender.text = "Gender: $characterGender"
+                    binding.tvHeight.text = "Height: $characterHeight cm"
+                    binding.tvMass.text = "Mass: $characterMass kg"
+                }
+            }
+
         }
     }
 }

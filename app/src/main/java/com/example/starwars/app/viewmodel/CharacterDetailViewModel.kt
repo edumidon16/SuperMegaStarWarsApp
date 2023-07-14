@@ -42,23 +42,19 @@ class CharacterDetailViewModel @Inject constructor(
         }
     }
 
-    fun getDetailCharacter(name: String): List<ModelCharacter> {
-
+    fun getDetailCharacter(name: String?, callback: (List<ModelCharacter>) -> Unit) {
         viewModelScope.launch(Dispatchers.IO) {
-            getCharacterDetailUseCase(name).collectLatest { character ->
-                if (character.isNotEmpty()) {
-                    detailList = character.first().result.orEmpty()
+            if (name != null) {
+                getCharacterDetailUseCase(name).collectLatest { character ->
+                    if (character.isNotEmpty()) {
+                        val detailList = character.first().result.orEmpty()
+                        callback(detailList)
+                    } else {
+                    }
 
-                } else {
-                    ResourceState.Error(character)
                 }
             }
         }
-        if (detailList.isNotEmpty()) {
-            return detailList
-        } else {
-            return emptyList()
-        }
-
     }
+
 }
