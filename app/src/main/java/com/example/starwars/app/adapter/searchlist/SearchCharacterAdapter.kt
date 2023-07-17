@@ -1,8 +1,9 @@
-package com.example.starwars.app.adapter
+package com.example.starwars.app.adapter.searchlist
 
 import android.annotation.SuppressLint
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.example.starwars.R
 import com.example.starwars.domain.model.ModelCharacter
@@ -14,9 +15,12 @@ class SearchCharacterAdapter(
 
 
     @SuppressLint("NotifyDataSetChanged")
-    fun updateList(characterList: List<ModelCharacter>) {
-        this.characterDetail = characterList
-        notifyDataSetChanged()
+    fun updateList(newList: List<ModelCharacter>) {
+        val searcCharacterdiffUtil = SeachCharacterDiffUtil(characterDetail, newList)
+        val result = DiffUtil.calculateDiff(searcCharacterdiffUtil)
+        characterDetail = newList
+        result.dispatchUpdatesTo(this)
+
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): SearchCharacterViewHolder {

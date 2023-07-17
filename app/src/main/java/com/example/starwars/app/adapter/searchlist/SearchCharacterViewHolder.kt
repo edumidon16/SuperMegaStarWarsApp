@@ -1,4 +1,4 @@
-package com.example.starwars.app.adapter
+package com.example.starwars.app.adapter.searchlist
 
 import android.view.View
 import androidx.recyclerview.widget.RecyclerView

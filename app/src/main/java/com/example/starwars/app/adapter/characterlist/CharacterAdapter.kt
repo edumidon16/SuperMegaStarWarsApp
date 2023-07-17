@@ -1,7 +1,8 @@
-package com.example.starwars.app.adapter
+package com.example.starwars.app.adapter.characterlist
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.example.starwars.R
 import com.example.starwars.domain.model.People
@@ -11,10 +12,11 @@ class CharacterAdapter(
     private val onItemSelected: (String?) -> Unit
 ) : RecyclerView.Adapter<CharacterViewHolder>() {
 
-
-    fun updateList(characterList: List<People>) {
-        this.characterList = characterList
-        notifyDataSetChanged()
+    fun updateList(newList: List<People>) {
+        val characterDiffUtil = CharacterDiffUtil(characterList, newList)
+        val result = DiffUtil.calculateDiff(characterDiffUtil)
+        characterList = newList
+        result.dispatchUpdatesTo(this)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CharacterViewHolder {

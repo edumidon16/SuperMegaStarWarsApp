@@ -4,8 +4,11 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.navigation.fragment.findNavController
+import com.example.starwars.R
 import com.example.starwars.app.viewmodel.CharacterDetailViewModel
 import com.example.starwars.databinding.FragmentCharacterDetailBinding
 import dagger.hilt.android.AndroidEntryPoint
@@ -34,8 +37,7 @@ class CharacterDetailFragment : Fragment() {
         _binding = null
     }
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
 
         arguments?.let { bundle ->
             name = bundle.getString("name")
@@ -44,7 +46,7 @@ class CharacterDetailFragment : Fragment() {
         name.let {
             characterViewModel.getDetailCharacter(name) { detailList ->
 
-                detailList.forEach { modelCharacter ->
+                detailList.first().let { modelCharacter ->
                     val characterName = modelCharacter.name
                     val characterHeight = modelCharacter.height
                     val characterMass = modelCharacter.mass
@@ -58,5 +60,15 @@ class CharacterDetailFragment : Fragment() {
             }
 
         }
+        binding.btnEliminateCharacter.setOnClickListener {
+            navigateToHome(name)
+        }
+    }
+
+    private fun navigateToHome(name: String?) {
+        findNavController().navigate(
+            R.id.action_characterDetailFragment_to_homeFragment,
+            bundleOf("name" to name)
+        )
     }
 }
