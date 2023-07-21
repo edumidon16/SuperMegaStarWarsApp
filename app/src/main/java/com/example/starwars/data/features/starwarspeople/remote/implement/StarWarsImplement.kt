@@ -4,7 +4,7 @@ import com.example.starwars.data.features.starwarspeople.mappers.toDomain
 import com.example.starwars.data.service.StarWarsService
 import com.example.starwars.domain.model.ModelCharacterDetailResponse
 import com.example.starwars.domain.model.PeopleResponse
-import com.example.starwars.domain.repository.MyRepository
+import com.example.starwars.domain.repository.StarWarsRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import javax.inject.Inject
@@ -13,7 +13,7 @@ import javax.inject.Singleton
 @Singleton
 open class StarWarsImplement @Inject constructor(
     private val apiService: StarWarsService
-) : MyRepository {
+) : StarWarsRepository {
 
     override suspend fun getAllPeople(): Flow<List<PeopleResponse>> = flow {
         val character = apiService.getAllPeople()

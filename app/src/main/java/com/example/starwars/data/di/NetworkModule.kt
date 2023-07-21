@@ -3,7 +3,7 @@ package com.example.starwars.data.di
 import com.example.starwars.data.constants.Constants.Companion.BASE_URL
 import com.example.starwars.data.features.starwarspeople.remote.implement.StarWarsImplement
 import com.example.starwars.data.service.StarWarsService
-import com.example.starwars.domain.repository.MyRepository
+import com.example.starwars.domain.repository.StarWarsRepository
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -45,7 +45,7 @@ object NetworkModule {
 
     @Provides
     @Singleton
-    fun provideMyRepository(remoteService: StarWarsService): MyRepository {
+    fun provideMyRepository(remoteService: StarWarsService): StarWarsRepository {
         return StarWarsImplement(remoteService)
     }
 }

@@ -59,4 +59,27 @@
         android:layout_marginLeft="10dp"
         android:textColor="@color/white" />
 
+    <Button
+        android:id="@+id/btnEliminateCharacter"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="550dp"
+        android:layout_marginLeft="75dp"
+        android:layout_marginRight="75dp"
+        android:text="Eliminate Character"
+        android:backgroundTint="@color/white"
+        android:textColor="@color/black" />
+
+    <Button
+        android:id="@+id/btnAddCharacter"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="610dp"
+        android:layout_marginLeft="75dp"
+        android:layout_marginRight="75dp"
+        android:text="Add to favorites"
+        android:backgroundTint="@color/white"
+        android:textColor="@color/black" />
+
+
 </androidx.cardview.widget.CardView>

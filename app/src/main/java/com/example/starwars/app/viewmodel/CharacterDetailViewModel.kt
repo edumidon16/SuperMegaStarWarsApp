@@ -7,6 +7,7 @@ import com.example.starwars.app.common.states.ResourceState.Idle
 import com.example.starwars.app.common.states.ResourceState.Success
 import com.example.starwars.domain.model.ModelCharacter
 import com.example.starwars.domain.model.ModelCharacterDetailResponse
+import com.example.starwars.domain.model.People
 import com.example.starwars.domain.usecase.GetCharacterDetailUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -26,6 +27,11 @@ class CharacterDetailViewModel @Inject constructor(
 
     val characterSearcher: MutableStateFlow<CharacterDetailState> = MutableStateFlow(Idle())
     private var detailList: List<ModelCharacter> = emptyList()
+    var currentCharacterDetailList: List<ModelCharacter> = emptyList()
+
+
+    var listOfFavorites: List<People> = emptyList()
+
 
     fun searchByName(query: String) {
         characterSearcher.update { ResourceState.Loading() }
@@ -56,5 +62,4 @@ class CharacterDetailViewModel @Inject constructor(
             }
         }
     }
-
 }

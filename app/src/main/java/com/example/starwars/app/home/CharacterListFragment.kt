@@ -15,14 +15,12 @@ import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.starwars.R
-import com.example.starwars.app.adapter.CharacterAdapter
-import com.example.starwars.app.adapter.SearchCharacterAdapter
+import com.example.starwars.app.adapter.characterlist.CharacterAdapter
+import com.example.starwars.app.adapter.searchlist.SearchCharacterAdapter
 import com.example.starwars.app.common.states.ResourceState
 import com.example.starwars.app.viewmodel.CharacterDetailViewModel
-import com.example.starwars.app.viewmodel.PeopleListViewModel
+import com.example.starwars.app.viewmodel.CharacterListViewModel
 import com.example.starwars.databinding.FragmentHomeBinding
-import com.example.starwars.domain.model.ModelCharacter
-import com.example.starwars.domain.model.People
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collectLatest
@@ -30,23 +28,21 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 @AndroidEntryPoint
-class HomeFragment : Fragment() {
-
-    companion object {
-        fun newInstance() = HomeFragment()
-            .apply { }
-    }
+class CharacterListFragment : Fragment() {
 
     private var binding: FragmentHomeBinding? = null
 
-    private val peopleViewModel: PeopleListViewModel by viewModels()
-    private var currentCharacterList: List<People> = emptyList()
+    //DetailCharacter
+    private val peopleViewModel: CharacterListViewModel by viewModels()
     private lateinit var characterAdapter: CharacterAdapter
 
     //Searcher
     private val characterViewModel: CharacterDetailViewModel by viewModels()
-    private var currentCharacterDetailList: List<ModelCharacter> = emptyList()
     private lateinit var searchAdapter: SearchCharacterAdapter
+
+    private var name: String? = ""
+    private var nameToAdd: String? = ""
+
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -64,6 +60,10 @@ class HomeFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        arguments?.let { bundle ->
+            name = bundle.getString("name")
+        }
 
         searchAdapter = SearchCharacterAdapter { name ->
             if (name != null) {
@@ -99,12 +99,16 @@ class HomeFragment : Fragment() {
                 if (newText.isNullOrEmpty()) {
                     peopleViewModel.loadCharacters()
                 } else {
-                    characterViewModel.searchByName(newText.orEmpty())
+                    characterViewModel.searchByName(newText)
                 }
-
                 return false
             }
         })
+
+        binding?.btnShowFav?.setOnClickListener {
+
+            navigateToShowFav()
+        }
 
 
 
@@ -127,12 +131,20 @@ class HomeFragment : Fragment() {
                             }
 
                             is ResourceState.Success -> {
-
                                 withContext(Dispatchers.Main) {
                                     binding?.rvStarWarsCharacters?.visibility = View.GONE
                                     binding?.rvStarWarsPeople?.visibility = View.VISIBLE
-                                    currentCharacterList = listState.data.first().results.orEmpty()
-                                    characterAdapter.updateList(currentCharacterList)
+                                    peopleViewModel.currentCharacterList =
+                                        listState.data.first().results.orEmpty()
+                                    val personToRemove =
+                                        peopleViewModel.currentCharacterList.find { it.name == name }
+                                    if (name != "") {
+                                        peopleViewModel.addNewRemoveCharacter(personToRemove)
+                                    }
+                                    if (nameToAdd != "") {
+                                        peopleViewModel.addNewCharacterToFavorites(personToRemove)
+                                    }
+                                    characterAdapter.updateList(peopleViewModel.currentCharacterList)
                                     binding?.progressBar?.isVisible = false
                                 }
                             }
@@ -167,9 +179,9 @@ class HomeFragment : Fragment() {
                                 withContext(Dispatchers.Main) {
                                     binding?.rvStarWarsCharacters?.visibility = View.VISIBLE
                                     binding?.rvStarWarsPeople?.visibility = View.GONE
-                                    currentCharacterDetailList =
+                                    characterViewModel.currentCharacterDetailList =
                                         listState.data.first().result.orEmpty()
-                                    searchAdapter.updateList(currentCharacterDetailList)
+                                    searchAdapter.updateList(characterViewModel.currentCharacterDetailList)
                                     binding?.progressBar?.isVisible = false
                                 }
                             }
@@ -188,18 +200,10 @@ class HomeFragment : Fragment() {
             bundleOf("name" to name)
         )
     }
+
+    private fun navigateToShowFav() {
+        findNavController().navigate(
+            R.id.action_homeFragment_to_favoritesDialog
+        )
+    }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
